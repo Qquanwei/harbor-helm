@@ -24,6 +24,8 @@ spec:
 {{ toYaml .Values.core.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+        fsGroup: 10000
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -74,8 +76,7 @@ spec:
           subPath: tls.key
         {{- if .Values.expose.tls.enabled }}
         - name: ca-download
-          mountPath: /etc/core/ca/ca.crt
-          subPath: ca.crt
+          mountPath: /etc/core/ca
         {{- end }}
         {{- if .Values.uaaSecretName }}
         - name: auth-ca-cert
@@ -118,9 +119,6 @@ spec:
         {{- else }}
           secretName: {{ .Values.expose.tls.secretName }}
         {{- end }}
-          items:
-            - key: ca.crt
-              path: ca.crt
       {{- end }}
       {{- if .Values.uaaSecretName }}
       - name: auth-ca-cert
